@@ -1,0 +1,96 @@
+#include <stdlib.h>
+#include <unistd.h>
+
+int is_in(char c, char *charset)
+{
+	int i;
+
+	i = -1;
+	while (charset[++i] != '\0')
+		if (charset[i] == c)
+			return (1);
+	return (0);
+}
+
+int count_words(char *str, char *charset)
+{
+	int i;
+	int words;
+
+	i = -1;
+	words = 0;
+	while (str[++i] != '\0')
+		if (is_in(str[i], charset) == 0 && is_in(str[i + 1], charset) == 1)
+			words++;
+	if (is_in(str[i - 1], charset) == 0)
+		return (words + 1);
+	return (words);
+}
+
+int wordlen(char *str, char *charset, int start)
+{
+	int i;
+
+	i = start;
+	while (is_in(str[i], charset) == 0 && str[i] != '\0')
+		i++;
+	return (i - start);
+}
+
+char **ft_split(char *str)
+{
+	int i;
+	int j;
+	int k;
+	int len;
+	char **string;
+
+	if (!(string = malloc(sizeof(char *) * count_words(str, " 	") + 1)))
+		return (0);
+	i = -1;
+	k = 0;
+	while (is_in(str[k], " 	") == 1)
+		k++;
+	while (++i < count_words(str, " 	"))
+	{
+		len = wordlen(str, " 	", k);
+		if (!(string[i] = malloc(sizeof(char) * len + 1)))
+			return (0);
+		j = -1;
+		while (++j < len)
+			string[i][j] = str[k++];
+		string[i][j] = '\0';
+		while (is_in(str[k], " 	") == 1)
+			k++;
+	}
+	string[i] = 0;
+	return (string);
+}
+
+int main(int ac, char **av)
+{
+	int i;
+	int j;
+	char **tab;
+
+	if (ac == 2)
+	{
+		i = 0;
+		tab = ft_split(av[1]);
+		while (tab[++i] != 0)
+		{
+			j = -1;
+			while (tab[i][++j] != '\0')
+				write(1, &tab[i][j], 1);
+			write(1, " ", 1);
+			free(tab[i]);
+		}
+		j = -1;
+		while (tab[0][++j] != '\0')
+			write(1, &tab[0][j], 1);
+		free(tab[0]);
+	}
+	free(tab);
+	write(1, "\n", 1);
+	return (0);
+}
